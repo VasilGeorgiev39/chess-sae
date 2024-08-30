@@ -63,6 +63,8 @@ In the visualisations below the arrow indicates the move that the model will tak
 
 I started with layer 10 as it is 2/3rds in the model and was expecting to see some specific features formed already. I decided to use an expansion factor of 32 and fiddled with the expected L0 - I ran 3 runs with k in [16, 32, 64]
 
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L10_l2loss.png)
+
 #### k = 16
 
 **Most frequent features**
@@ -166,6 +168,8 @@ Based on those observations it seemed to me that the higher the K the more inter
 
 ### Layer 12
 
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L12_l2_loss.png)
+
 #### x = 32
 
 **Most sparse features**
@@ -221,6 +225,8 @@ In general I was disappointed that increasing the expansion to 64 didn't lead to
 ### Layer 13
 
 I was excited to layer 13 because our previous work showed that L12H12 was crucial for lookahead so was hoping to see some interesting features
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L13_l2_loss.png)
 
 #### x = 32, k = 64
 
