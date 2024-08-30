@@ -51,7 +51,9 @@ Other approaches that I would love to explore:
 * Maximum reconstruction loss (this was too slow to calculate)
 * Maximum effect on the logit of the predicted move (too slow as well)
 * Activating when a puzzle label is present - this would have allowed me to take advantage of the labeled data and 'automatically' label features (the caveat is that the labels of this dataset are not that great actually)
-* To improve on that we can train some probes (or algorithmically detect when a concept is present like 'an-passant') and find the features that have high correlation with the probes. In general, with chess we have ground truth available and we can use that.
+* To improve on that we can train some probes (or algorithmically detect when a concept is present like 'En passant') and find the features that have high correlation with the probes. In general, with chess we have ground truth available and we can use that.
+
+In the visualisations below the arrow indicates the move that the model will take and the red marked square is the square of the activation of the feature.
 
 ### Layer 10
 
@@ -61,67 +63,99 @@ I started with layer 10 as it is 2/3rds in the model and was expecting to see so
 
 **Most frequent features**
 
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L10x32k16_frequent.png)
+
 Features in general are not very interpretable
-Feature 17718: Something about the pawn in front of the enemy king that is going to be checkmated
-Feature 22366: Seems maybe fork related but stores the info on weird squares
+
+- Feature 17718: Something about the pawn in front of the enemy king that is going to be checkmated
+- Feature 22366: Seems maybe fork related but stores the info on weird squares
 
 **Most sparse features**
 
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L10x32k16_sparse.png)
+
 A bit more interpretable but not clear cut
 
-Feature 8441, 2311 and 22551: Vulnerable enemy king (with 2311 and 22551 specifically about giving horizontal check to the enemy king)
-Feature 3945: Something about our queen but not super clear
+- Feature 8441, 2311 and 22551: Vulnerable enemy king (with 2311 and 22551 specifically about giving horizontal check to the enemy king)
+- Feature 3945: Something about our queen but not super clear
 
 **Most strongly activated**
+
 Exactly the same as the sparse features
 
 **Threshold**
 
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L10x32k16_threshold.png)
+
 More clear-cut features
 
-**Feature 1655: We are taking the enemy queen! However the information is stored on weird unrelated squares, usually around the corner**
-Feature 2294: Taking the queen again all 5/5 top activations are from the same position (meaning the information appears to be copied over multiple squares)
-Feature 5809: Something about pawn ending but not clear
-Feature 10764: Information stored on our king's square that we are giving check to the opponent's king with a rook (weird place to store that information)
-Feature 17771: Pawn ending again
+
+- ###**Feature 1655: We are taking the enemy queen! However the information is stored on weird unrelated squares, usually around the corner**
+- Feature 2294: Taking the queen again all 5/5 top activations are from the same position (meaning the information appears to be copied over multiple squares)
+- Feature 5809: Something about pawn ending but not clear
+- Feature 10764: Information stored on our king's square that we are giving check to the opponent's king with a rook (weird place to store that information)
+- Feature 17771: Pawn ending again
 
 #### k = 32
 
 **Most frequent features**
 
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L10x32k32_frequent.png)
+
 Not interpretable features with one exception
 
-Feature 12545: Square where a rook would normally love to go but the file is protected. Very niche, humans don't have a term for this
+- Feature 12545: Square where a rook would normally love to go but the file is protected. Very niche, humans don't have a term for this
 
 **Most sparse features**
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L10x32k32_sparse.png)
+
 Mostly piece related features
-Feature 17363: We are giving a check on the enemy king with a queen on F7 (mirrored C2). Very specific
-Feature 2739: Something about the enemy king but not specific at all
-Feature 6465: Something about the enemy knight
-Feature 7392: Something about our knight
+
+- Feature 17363: We are giving a check on the enemy king with a queen on F7 (mirrored C2). Very specific
+- Feature 2739: Something about the enemy king but not specific at all
+- Feature 6465: Something about the enemy knight
+- Feature 7392: Something about our knight
+
 **Most strongly activated**
+
 pretty much same
+
 **Threshold**
+
 Same as the features from k = 16 (with different ids of course)
+
 #### k = 64
 
 **Most frequent features**
-Feature 17484: Same as feature 12545 from k = 32
-Feature 8046: We are giving a check to the enemy king with a queen or a rook. Information stored on a weird square
-Feature 13087: We are moving the queen, information stored on a weird square
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L10x32k64_frequent.png)
+
+- Feature 17484: Same as feature 12545 from k = 32
+- Feature 8046: We are giving a check to the enemy king with a queen or a rook. Information stored on a weird square
+- Feature 13087: We are moving the queen, information stored on a weird square
+
 **Most sparse features**
-Feature 10755: Giving a check on the last rank with a rook, queen and rook mate incoming
-Feature 14697: Long live the queen feature
-Feature 12558: Someting about the enemy bishop
-Feature 8392: Someting about the enemy knight
-Feature 8392: Someting about the enemy rook
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L10x32k64_sparse.png)
+
+- Feature 10755: Giving a check on the last rank with a rook, queen and rook mate incoming
+- Feature 14697: Long live the queen feature
+- Feature 12558: Someting about the enemy bishop
+- Feature 8392: Someting about the enemy knight
+- Feature 8392: Someting about the enemy rook
 
 **Most strongly activated**
+
 Same
+
 **Threshold**
-Feature 460: Our King holds information that we are giving a check with a rook
-Feature 6623: Something about pawn ending stored in the corner
-Feature 23151: Another we are taking a queen feature
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L10x32k64_threshold.png)
+
+- Feature 460: Our King holds information that we are giving a check with a rook
+- Feature 6623: Something about pawn ending stored in the corner
+- Feature 23151: Another we are taking a queen feature
 
 
 Based on those observations it seemed to me that the higher the K the more interpretable the features are so I decided to fix K at 64, move up a couple of layers and do two runs with expanding factor of 32 and 64
@@ -131,56 +165,78 @@ Based on those observations it seemed to me that the higher the K the more inter
 #### x = 32
 
 **Most sparse features**
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L12x32k64_sparse.png)
+
 Mostly piece related features again, this seems like a trend for sparse features
 
-Feature 22493: Something about our king
-Feature 21783: Something about an enemy pawn
-Feature 11316: Something about an enemy pawn near their king
-Feature 23988: Something about the enemy king
-Feature 23656: Something about our rook
+- Feature 22493: Something about our king
+- Feature 21783: Something about an enemy pawn
+- Feature 11316: Something about an enemy pawn near their king
+- Feature 23988: Something about the enemy king
+- Feature 23656: Something about our rook
 
 **Most strongly activated**
+
 Very similar
 
 **Threshold**
-Feature 4793: Same square colour bishop ending (information on a square opposite the bishops)
-Feature 15906: We are giving a check, information stored on a weird square
-Feature 17922: Something about our pawn
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L12x32k64_threshold.png)
+
+- Feature 4793: Same square colour bishop ending (information on a square opposite the bishops)
+- Feature 15906: We are giving a check, information stored on a weird square
+- Feature 17922: Something about our pawn
 
 #### x = 64
 
 **Most frequent features**
+
 Nothing interesting
 
 **Most sparse features**
-Feature 2526: Something about our king
-Feature 2439: We are giving a check with a queen and information is stored in our pawn
-Feature 34197: Something about enemy pawn
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L12x64k64_sparse.png)
+
+- Feature 2526: Something about our king
+- Feature 2439: We are giving a check with a queen and information is stored in our pawn
+- Feature 34197: Something about enemy pawn
 
 **Most strongly activated**
-Feature 4955: Back rank mate stored with our king
+
+- Feature 4955: Back rank mate stored with our king
 
 **Threshold**
-**Features 18618 and 21530: An passant features!**
 
-In general I was disappointed that increasing the expansion to 64 didn't lead to noticeably more interpretable features (although we got the an passant feature!)
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L12x64k64_threshhold.png)
+
+- ###**Features 18618 and 21530: En passant features!**
+
+In general I was disappointed that increasing the expansion to 64 didn't lead to noticeably more interpretable features (although we got the En passant feature!)
 
 ### Layer 13
 
 I was excited to layer 13 because our previous work showed that L12H12 was crucial for lookahead so was hoping to see some interesting features
 
-#### x = 32, k = 32
+#### x = 32, k = 64
 
 **Most frequent features**
-Feature 23769: Back rank mate stored in a random square
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L13x32k64_frequent.png)
+
+- Feature 23769: Back rank mate stored in a random square
 
 **Most sparse features**
-Feature 4688: Queen captures for back rank mate
-Feature 19298: Something about our king when we capture
-Feature 19702: Our knight supports the moving piece
-Feature 5912: Enemy queen 
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/L13x32k64_sparse.png)
+
+- Feature 4688: Queen captures for back rank mate
+- Feature 19298: Something about our king when we capture
+- Feature 19702: Our knight supports the moving piece
+- Feature 5912: Enemy queen 
 
 **Most strongly activated**
+
 Very similar
 
 ### Observations
@@ -197,13 +253,32 @@ To provide stronger evidence that the SAEs have learned actual features I wanted
 
 I choose the feature which I thought was the cleanest - Feature 1655 from Layer 10: Queen capture. I created the following board:
 
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/clean_policy.png)
+
+```{'f6h5': 0.94608, 'e8e7': 0.00267, 'c7c6': 0.00243}```
+
+
 Then I performed ablation on the highest activation square for that feature:
 
-Vioala, the model doesn't want to take the queen!
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/ablation1.png)
 
-To verify the result, I performed ablation on a different square and also on a different feature. In both cases the model still wants to capture the queen.
+```{'g7g6': 0.10583, 'f6h5': 0.07238, 'h8g8': 0.06513}```
 
-Further work: Verify that the ablation didn't otherwise ruin the performance of the model
+**Voilà, the model doesn't want to take the queen!!!**
+
+To verify the result, I performed ablation on a different square and also on a different feature.
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/ablation2.png)
+
+```{'f6h5': 0.42935, 'f6g8': 0.13909, 'h8g8': 0.08488}```
+
+In both cases the model still wants to capture the queen.
+
+![](https://github.com/VasilGeorgiev39/chess-sae/blob/main/plots/ablation3.png)
+
+```{'f6h5': 0.14463, 'h7h6': 0.09349, 'g7g6': 0.08671}```
+
+Further work needed: Verify that the ablation didn't otherwise ruin the performance of the model
 
 # Conclusions
 
