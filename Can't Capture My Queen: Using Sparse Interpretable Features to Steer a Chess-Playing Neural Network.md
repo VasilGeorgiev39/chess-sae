@@ -41,6 +41,10 @@ I think that for chess transformers it would be interesting to train SAEs on the
 
 I decided to use BatchTopK SAEs (as seen in [this post by Bart Bussmann, Patrick Leask, Neel Nanda](https://www.lesswrong.com/posts/Nkx6yWZNbAsfvic98/batchtopk-a-simple-improvement-for-topk-saes) which improves on [(Gao et al. 2024)](https://arxiv.org/abs/2406.04093v1) ) on the resid post. I realised that I wouldn't have time to do a full parameter sweep so decided to fiddle with the parameters manually on a couple of layers.
 
+For the SAE training I used the [excellent library](https://github.com/saprmarks/dictionary_learning) developed by Samuel Marks and Aaron Mueller.
+
+For caching the activations I used the code from our [Evidence of Learned Look-Ahead in a Chess-Playing Neural Network (Jenner at al, 2024)](https://leela-interp.github.io/) paper
+
 I think one of the important decisions I faced was after I have a trained autoencoder, how do I look for 'interesting' features? I was not familiar with the literature and after some brainstorming I decided to fill features based on 4 criteria:
 * Activation frequency
 * Activation sparsity
